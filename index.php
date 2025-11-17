@@ -27,30 +27,62 @@
       </thead>
       <tbody>
         <?php
-
-        $conexion = mysqli_connect(getenv('MYSQL_HOST'), getenv('MYSQL_USER'), getenv('MYSQL_PASSWORD'), "SG");
+            // 1. Activar reporte de errores para ver qué pasa si falla
+            error_reporting(E_ALL);
+            ini_set('display_errors', 1);
         
-        if (!$conexion) {
-            die("Conexión fallida: " . mysqli_connect_error());
-        }
-        $cadenaSQL = "select * from s_customer";
-        $resultado = mysqli_query($conexion, $cadenaSQL);
-        if (!$resultado) {
-            die("Error en la consulta: " . mysqli_error($conexion));
-        }
-      
+            $dbUser = getenv('MYSQL_USER');
+            $dbPass = getenv('MYSQL_PASSWORD');
+            $dbName = "SG"; // O getenv('MYSQL_DB') si lo agregaste al yaml
+            $cloudSqlName = getenv('CLOUD_SQL_CONNECTION_NAME');
+            $dbHost = getenv('MYSQL_HOST'); // Solo si decides probar con IP localmente
+        
+            // 2. Lógica de conexión inteligente
+            // Si existe la variable CLOUD_SQL_CONNECTION_NAME, usamos el Socket (Modo App Engine)
+            if ($cloudSqlName) {
+                // El socket siempre está en /cloudsql/NOMBRE_CONEXION
+                $socketPath = "/cloudsql/" . $cloudSqlName;
+                $conexion = mysqli_connect(null, $dbUser, $dbPass, $dbName, null, $socketPath);
+            } else {
+                // Si no, intentamos usar la IP (Modo Local o si dejaste la IP configurada)
+                $conexion = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
+            }
+            
+            // Verificación de conexión
+            if (!$conexion) {
+                // Imprimimos el error en rojo para que sea visible
+                die("<tr><td colspan='7' style='color: red; font-weight: bold;'>
+                    Conexión fallida: " . mysqli_connect_error() . " <br>
+                    (Verifica que el Instance Connection Name en app.yaml sea correcto)
+                    </td></tr>");
+            }
+        
+            $cadenaSQL = "select * from s_customer";
+            $resultado = mysqli_query($conexion, $cadenaSQL);
+        
+            if (!$resultado) {
+                die("<tr><td colspan='7'>Error en la consulta: " . mysqli_error($conexion) . "</td></tr>");
+            }
+        
+            // Verificar si hay 0 filas
+            if (mysqli_num_rows($resultado) == 0) {
+                 echo "<tr><td colspan='7'>Conexión exitosa, pero la tabla s_customer está vacía.</td></tr>";
+            }
+        
+            while ($fila = mysqli_fetch_object($resultado)) {
+                echo "<tr>";
+                // Asegúrate que estos nombres coinciden EXACTAMENTE con tus columnas en la BD
+                echo "<td>" . ($fila->name ?? 'N/A') . "</td>"; 
+                echo "<td>" . ($fila->credit_rating ?? 'N/A') . "</td>";
+                echo "<td>" . ($fila->address ?? 'N/A') . "</td>";
+                echo "<td>" . ($fila->city ?? 'N/A') . "</td>";
+                echo "<td>" . ($fila->state ?? 'N/A') . "</td>";
+                echo "<td>" . ($fila->country ?? 'N/A') . "</td>";
+                echo "<td>" . ($fila->zip_code ?? 'N/A') . "</td>"; 
+                echo "</tr>";
+            }
+        ?>
 
-        while ($fila = mysqli_fetch_object($resultado)) {
-         echo "<tr><td> " .$fila->name . 
-         "</td><td>" . $fila->credit_rating .
-         "</td><td>" . $fila->address .
-         "</td><td>" . $fila->city .
-         "</td><td>" . $fila->state .
-         "</td><td>" . $fila->country .
-         "</td><td>" . $fila->zip_code .
-         "</td></tr>";
-       }
-       ?>
      </tbody>
    </table>
  </div>
