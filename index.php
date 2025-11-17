@@ -38,8 +38,7 @@
         if (!$resultado) {
             die("Error en la consulta: " . mysqli_error($conexion));
         }
-        
-        $resultado = mysqli_query($conexion, $cadenaSQL);
+      
 
         while ($fila = mysqli_fetch_object($resultado)) {
          echo "<tr><td> " .$fila->name . 
