@@ -29,8 +29,16 @@
         <?php
 
         $conexion = mysqli_connect(getenv('MYSQL_HOST'), getenv('MYSQL_USER'), getenv('MYSQL_PASSWORD'), "SG");
-
+        
+        if (!$conexion) {
+            die("Conexión fallida: " . mysqli_connect_error());
+        }
         $cadenaSQL = "select * from s_customer";
+        $resultado = mysqli_query($conexion, $cadenaSQL);
+        if (!$resultado) {
+            die("Error en la consulta: " . mysqli_error($conexion));
+        }
+        
         $resultado = mysqli_query($conexion, $cadenaSQL);
 
         while ($fila = mysqli_fetch_object($resultado)) {
