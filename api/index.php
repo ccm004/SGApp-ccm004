@@ -27,12 +27,12 @@
         </tr>
       </thead>
             
-      <tbody>
+       <tbody>
           <?php
-          // ** PASO 1: Prueba de Ejecución de Código PHP **
-          echo "<tr><td colspan='7'>Diagnóstico de Conexión. Intento: " . getenv('MYSQL_HOST') . "</td></tr>"; 
+          // Prueba de Ejecución: Si esto no se muestra, el problema es enrutamiento.
+          echo "<tr><td colspan='7'>Diagnóstico de Conexión. Host: " . getenv('MYSQL_HOST') . "</td></tr>"; 
           
-          // Suprimimos los Warnings de PHP con el @
+          // @ suprime warnings para que podamos manejar el error con if/else
           $conexion = @mysqli_connect(
               getenv('MYSQL_HOST'), 
               getenv('MYSQL_USER'), 
@@ -40,26 +40,23 @@
               "SG"
           );
       
-          // ** PASO 2: Revisar el Fallo de Conexión **
+          // Revisar el Fallo de Conexión
           if (mysqli_connect_errno()) {
               $error_msg = mysqli_connect_error();
               
-              // Muestra el error de conexión en la tabla
+              // ** Aquí veremos el error real de la base de datos **
               echo "<tr><td colspan='7' style='color:red;'> 
                   ❌ ERROR DE CONEXIÓN: " . htmlspecialchars($error_msg) . "
               </td></tr>";
-              
-              // Finaliza el script si la conexión falla
               die("Error en la aplicación: Fallo de DB."); 
               
           } else {
-              // ** PASO 3: Si la conexión es exitosa, ejecuta la consulta **
+              // Conexión exitosa, ejecuta la consulta
               echo "<tr><td colspan='7' style='color:green;'>✅ Conexión a la base de datos exitosa.</td></tr>";
       
               $cadenaSQL = "select * from s_customer";
               $resultado = mysqli_query($conexion, $cadenaSQL);
       
-              // Imprime el contenido de la tabla si hay resultados
               if ($resultado) {
                   while ($fila = mysqli_fetch_object($resultado)) {
                       echo "<tr><td> " .$fila->name . 
