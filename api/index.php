@@ -33,12 +33,13 @@
           echo "<tr><td colspan='7'>Diagnóstico de Conexión. Host: " . getenv('MYSQL_HOST') . "</td></tr>"; 
           
           // @ suprime warnings para que podamos manejar el error con if/else
-          $conexion = @mysqli_connect(
-              getenv('MYSQL_HOST'), 
-              getenv('MYSQL_USER'), 
-              getenv('MYSQL_PASSWORD'), 
-              "SG"
-          );
+          $db_host = getenv('MYSQL_HOST'); // e.g., 136.113.69.174
+          $db_user = getenv('MYSQL_USER');
+          $db_password = getenv('MYSQL_PASSWORD');
+          $db_name = getenv('MYSQL_DB');
+
+// Cambiar la conexión para usar la IP y puerto (null)
+$conexion = mysqli_connect($db_host, $db_user, $db_password, $db_name, 3306);
       
           // Revisar el Fallo de Conexión
           if (mysqli_connect_errno()) {
