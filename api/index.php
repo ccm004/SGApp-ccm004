@@ -27,42 +27,22 @@
       </thead>
       <tbody>
         <?php
-        // Conexión simple sin SSL
-        $conexion = mysqli_connect(
-            getenv('MYSQL_HOST'),
-            getenv('MYSQL_USER'),
-            getenv('MYSQL_PASSWORD'),
-            'SG',
-            3306
-        );
-        
-        // Verificar la conexión
-        if (!$conexion) {
-            die("Error de conexión: " . mysqli_connect_error() . " (Código: " . mysqli_connect_errno() . ")");
-        }
 
-        // Consulta SQL
-        $cadenaSQL = "SELECT * FROM s_customer";
+        $conexion = mysqli_connect(getenv('MYSQL_HOST'), getenv('MYSQL_USER'), getenv('MYSQL_PASSWORD'), "SG");
+
+        $cadenaSQL = "select * from s_customer";
         $resultado = mysqli_query($conexion, $cadenaSQL);
-        
-        if (!$resultado) {
-            die("Error en la consulta: " . mysqli_error($conexion));
-        }
 
-        // Mostrar resultados
         while ($fila = mysqli_fetch_object($resultado)) {
-         echo "<tr><td>" . htmlspecialchars($fila->name ?? '') . 
-         "</td><td>" . htmlspecialchars($fila->credit_rating ?? '') .
-         "</td><td>" . htmlspecialchars($fila->address ?? '') .
-         "</td><td>" . htmlspecialchars($fila->city ?? '') .
-         "</td><td>" . htmlspecialchars($fila->state ?? '') .
-         "</td><td>" . htmlspecialchars($fila->country ?? '') .
-         "</td><td>" . htmlspecialchars($fila->zip_code ?? '') .
+         echo "<tr><td> " .$fila->name . 
+         "</td><td>" . $fila->credit_rating .
+         "</td><td>" . $fila->address .
+         "</td><td>" . $fila->city .
+         "</td><td>" . $fila->state .
+         "</td><td>" . $fila->country .
+         "</td><td>" . $fila->zip_code .
          "</td></tr>";
        }
-       
-       // Cerrar la conexión
-       mysqli_close($conexion);
        ?>
      </tbody>
    </table>
