@@ -27,75 +27,17 @@
       </thead>
       <tbody>
         <?php
-        // Inicializar la conexión mysqli
-        $conexion = mysqli_init();
-        
-        if (!$conexion) {
-            die('Error al inicializar mysqli');
-        }
-        
-        // Rutas de los certificados SSL
-        $ssl_ca = __DIR__ . '/server-ca.pem';
-        $ssl_cert = __DIR__ . '/client-cert.pem';
-        $ssl_key = __DIR__ . '/client-key.pem';
-        
-        // Verificar si existen los certificados
-        if (file_exists($ssl_ca)) {
-            // Configurar SSL
-            // Desactivar verificación del nombre del certificado para permitir conexión por IP
-            mysqli_options($conexion, MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, false);
-            
-            // Si existen certificados de cliente, usarlos
-            if (file_exists($ssl_cert) && file_exists($ssl_key)) {
-                // Conexión SSL completa con certificados de cliente
-                mysqli_ssl_set(
-                    $conexion,
-                    $ssl_key,       // client-key.pem
-                    $ssl_cert,      // client-cert.pem
-                    $ssl_ca,        // server-ca.pem
-                    NULL,           // capath
-                    NULL            // cipher
-                );
-            } else {
-                // Conexión SSL solo con certificado del servidor
-                mysqli_ssl_set(
-                    $conexion,
-                    NULL,           // key
-                    NULL,           // cert
-                    $ssl_ca,        // server-ca.pem
-                    NULL,           // capath
-                    NULL            // cipher
-                );
-            }
-            
-            // Conectar a la base de datos con SSL
-            $conectado = mysqli_real_connect(
-                $conexion,
-                getenv('MYSQL_HOST'),
-                getenv('MYSQL_USER'),
-                getenv('MYSQL_PASSWORD'),
-                'SG',
-                3306,
-                NULL,
-                MYSQLI_CLIENT_SSL
-            );
-        } else {
-            // Si no existe el certificado, conectar sin SSL
-            echo "<!-- Advertencia: Conectando sin SSL (certificado no encontrado) -->";
-            $conectado = mysqli_real_connect(
-                $conexion,
-                getenv('MYSQL_HOST'),
-                getenv('MYSQL_USER'),
-                getenv('MYSQL_PASSWORD'),
-                'SG',
-                3306,
-                NULL,
-                0
-            );
-        }
+        // Conexión simple sin SSL
+        $conexion = mysqli_connect(
+            getenv('MYSQL_HOST'),
+            getenv('MYSQL_USER'),
+            getenv('MYSQL_PASSWORD'),
+            'SG',
+            3306
+        );
         
         // Verificar la conexión
-        if (!$conectado) {
+        if (!$conexion) {
             die("Error de conexión: " . mysqli_connect_error() . " (Código: " . mysqli_connect_errno() . ")");
         }
 
