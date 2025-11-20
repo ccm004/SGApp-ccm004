@@ -27,8 +27,39 @@
       </thead>
       <tbody>
         <?php
-
-        $conexion = mysqli_connect(getenv('MYSQL_HOST'), getenv('MYSQL_USER'), getenv('MYSQL_PASSWORD'), "SG");
+        // Inicializar la conexión mysqli
+        $conexion = mysqli_init();
+        
+        // Configurar las opciones SSL
+        // El certificado server-ca.pem debe estar en la carpeta api/
+        $ssl_ca = __DIR__ . '/server-ca.pem';
+        
+        // Establecer las opciones SSL
+        mysqli_ssl_set(
+            $conexion,
+            NULL,           // key
+            NULL,           // cert
+            $ssl_ca,        // ca
+            NULL,           // capath
+            NULL            // cipher
+        );
+        
+        // Conectar a la base de datos con SSL
+        mysqli_real_connect(
+            $conexion,
+            getenv('MYSQL_HOST'),
+            getenv('MYSQL_USER'),
+            getenv('MYSQL_PASSWORD'),
+            'SG',
+            3306,
+            NULL,
+            MYSQLI_CLIENT_SSL
+        );
+        
+        // Verificar la conexión
+        if (mysqli_connect_errno()) {
+            die("Error de conexión: " . mysqli_connect_error());
+        }
 
         $cadenaSQL = "select * from s_customer";
         $resultado = mysqli_query($conexion, $cadenaSQL);
@@ -43,6 +74,9 @@
          "</td><td>" . $fila->zip_code .
          "</td></tr>";
        }
+       
+       // Cerrar la conexión
+       mysqli_close($conexion);
        ?>
      </tbody>
    </table>
