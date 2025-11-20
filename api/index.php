@@ -51,13 +51,13 @@
 
         // Mostrar resultados
         while ($fila = mysqli_fetch_object($resultado)) {
-         echo "<tr><td>" . htmlspecialchars($fila->name) . 
-         "</td><td>" . htmlspecialchars($fila->credit_rating) .
-         "</td><td>" . htmlspecialchars($fila->address) .
-         "</td><td>" . htmlspecialchars($fila->city) .
-         "</td><td>" . htmlspecialchars($fila->state) .
-         "</td><td>" . htmlspecialchars($fila->country) .
-         "</td><td>" . htmlspecialchars($fila->zip_code) .
+         echo "<tr><td>" . htmlspecialchars($fila->name ?? '') . 
+         "</td><td>" . htmlspecialchars($fila->credit_rating ?? '') .
+         "</td><td>" . htmlspecialchars($fila->address ?? '') .
+         "</td><td>" . htmlspecialchars($fila->city ?? '') .
+         "</td><td>" . htmlspecialchars($fila->state ?? '') .
+         "</td><td>" . htmlspecialchars($fila->country ?? '') .
+         "</td><td>" . htmlspecialchars($fila->zip_code ?? '') .
          "</td></tr>";
        }
        
