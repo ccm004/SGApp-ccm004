@@ -30,48 +30,72 @@
         // Inicializar la conexión mysqli
         $conexion = mysqli_init();
         
+        if (!$conexion) {
+            die('Error al inicializar mysqli');
+        }
+        
         // Configurar las opciones SSL
         // El certificado server-ca.pem debe estar en la carpeta api/
         $ssl_ca = __DIR__ . '/server-ca.pem';
         
-        // Establecer las opciones SSL
-        mysqli_ssl_set(
-            $conexion,
-            NULL,           // key
-            NULL,           // cert
-            $ssl_ca,        // ca
-            NULL,           // capath
-            NULL            // cipher
-        );
-        
-        // Conectar a la base de datos con SSL
-        mysqli_real_connect(
-            $conexion,
-            getenv('MYSQL_HOST'),
-            getenv('MYSQL_USER'),
-            getenv('MYSQL_PASSWORD'),
-            'SG',
-            3306,
-            NULL,
-            MYSQLI_CLIENT_SSL
-        );
+        // Verificar que el archivo del certificado existe
+        if (file_exists($ssl_ca)) {
+            // Establecer las opciones SSL
+            mysqli_ssl_set(
+                $conexion,
+                NULL,           // key
+                NULL,           // cert
+                $ssl_ca,        // ca
+                NULL,           // capath
+                NULL            // cipher
+            );
+            
+            // Conectar a la base de datos con SSL
+            $conectado = mysqli_real_connect(
+                $conexion,
+                getenv('MYSQL_HOST'),
+                getenv('MYSQL_USER'),
+                getenv('MYSQL_PASSWORD'),
+                'SG',
+                3306,
+                NULL,
+                MYSQLI_CLIENT_SSL
+            );
+        } else {
+            // Si no existe el certificado, conectar sin SSL
+            echo "<!-- Advertencia: Conectando sin SSL -->";
+            $conectado = mysqli_real_connect(
+                $conexion,
+                getenv('MYSQL_HOST'),
+                getenv('MYSQL_USER'),
+                getenv('MYSQL_PASSWORD'),
+                'SG',
+                3306,
+                NULL,
+                0
+            );
+        }
         
         // Verificar la conexión
-        if (mysqli_connect_errno()) {
-            die("Error de conexión: " . mysqli_connect_error());
+        if (!$conectado) {
+            die("Error de conexión: " . mysqli_connect_error() . " (Código: " . mysqli_connect_errno() . ")");
         }
 
         $cadenaSQL = "select * from s_customer";
         $resultado = mysqli_query($conexion, $cadenaSQL);
+        
+        if (!$resultado) {
+            die("Error en la consulta: " . mysqli_error($conexion));
+        }
 
         while ($fila = mysqli_fetch_object($resultado)) {
-         echo "<tr><td> " .$fila->name . 
-         "</td><td>" . $fila->credit_rating .
-         "</td><td>" . $fila->address .
-         "</td><td>" . $fila->city .
-         "</td><td>" . $fila->state .
-         "</td><td>" . $fila->country .
-         "</td><td>" . $fila->zip_code .
+         echo "<tr><td> " . htmlspecialchars($fila->name) . 
+         "</td><td>" . htmlspecialchars($fila->credit_rating) .
+         "</td><td>" . htmlspecialchars($fila->address) .
+         "</td><td>" . htmlspecialchars($fila->city) .
+         "</td><td>" . htmlspecialchars($fila->state) .
+         "</td><td>" . htmlspecialchars($fila->country) .
+         "</td><td>" . htmlspecialchars($fila->zip_code) .
          "</td></tr>";
        }
        
